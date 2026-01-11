@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Product {
   id: string;
@@ -45,6 +45,19 @@ export default function Home() {
   const [newSale, setNewSale] = useState({ productId: '', quantity: '' });
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'sales'>('dashboard');
 
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    const savedProducts = localStorage.getItem('products');
+    if (savedProducts) {
+      setProducts(JSON.parse(savedProducts));
+    }
+
+    const savedSales = localStorage.getItem('sales');
+    if (savedSales) {
+      setSales(JSON.parse(savedSales));
+    }
+  }, []);
+
   const addProduct = () => {
     if (newProduct.name && newProduct.price) {
       const product: Product = {
@@ -52,7 +65,9 @@ export default function Home() {
         name: newProduct.name,
         price: parseFloat(newProduct.price),
       };
-      setProducts([...products, product]);
+      const updatedProducts = [...products, product];
+      setProducts(updatedProducts);
+      localStorage.setItem('products', JSON.stringify(updatedProducts));
       setNewProduct({ name: '', price: '' });
     }
   };
@@ -65,7 +80,9 @@ export default function Home() {
         quantity: parseInt(newSale.quantity),
         date: new Date().toISOString().split('T')[0],
       };
-      setSales([...sales, sale]);
+      const updatedSales = [...sales, sale];
+      setSales(updatedSales);
+      localStorage.setItem('sales', JSON.stringify(updatedSales));
       setNewSale({ productId: '', quantity: '' });
     }
   };
